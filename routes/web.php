@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FrontendAuthController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,3 +17,17 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth'])->name('dashboard');
+
+Route::get('home', [FrontendAuthController::class, 'home']);
+
+// Route::get('login', [FrontendAuthController::class, 'loginGet'])->name('login');
+// Route::post('login', [FrontendAuthController::class, 'loginPost']);
+// Route::post('logout', [FrontendAuthController::class, 'logout'])->name('logout');
+// Route::get('register', [FrontendAuthController::class, 'registerGet'])->name('register');
+// Route::post('register', [FrontendAuthController::class, 'registerPost']);
+
+require __DIR__.'/auth.php';
