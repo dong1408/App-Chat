@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\FrontendAuthController;
+use App\Http\Controllers\MessageController;
+use App\Http\Controllers\User\ChatController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,15 +16,18 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/', [MessageController::class, 'index']);
+    Route::get('/messages/{chatid}', [MessageController::class, 'getMessage']);
+    Route::post('/messages', [MessageController::class, 'sendMessage']);
 });
+
 
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth'])->name('dashboard');
 
-Route::get('home', [FrontendAuthController::class, 'home']);
+// Route::get('home', [FrontendAuthController::class, 'home']);
 
 // Route::get('login', [FrontendAuthController::class, 'loginGet'])->name('login');
 // Route::post('login', [FrontendAuthController::class, 'loginPost']);
