@@ -10,11 +10,13 @@ class MessageController extends Controller
 {
     public function index()
     {
-        return view('user.chat');
+        $friends = auth()->user()->friends;
+        return view('user.chat', compact('friends'));
     }
 
     public function getMessage($chatid)
     {
+        return $chatid;
         $messages = Message::where('chat_id', $chatid)->with('user')->get();
 
         return response()->json(['messages' => $messages]);

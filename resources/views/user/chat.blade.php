@@ -8,20 +8,17 @@
             <h4 class="fw-bold">Danh sách bạn bè</h4>
         </div>
         <ul class="list-group overflow-auto" style="max-height: 80vh;">
-            <li class="list-group-item d-flex align-items-center">
-                <img src="https://via.placeholder.com/40" class="rounded-circle me-3" alt="Avatar">
-                <div>
-                    <p class="fw-bold mb-0">Người dùng 1</p>
-                    <small class="text-muted">Tin nhắn cuối cùng...</small>
-                </div>
-            </li>
-            <li class="list-group-item d-flex align-items-center">
-                <img src="https://via.placeholder.com/40" class="rounded-circle me-3" alt="Avatar">
-                <div>
-                    <p class="fw-bold mb-0">Người dùng 2</p>
-                    <small class="text-muted">Tin nhắn cuối cùng...</small>
-                </div>
-            </li>
+            @foreach($friends as $friend)
+                <a href="{{ route('chat', ['chatid' => $friend->id]) }}">
+                    <li class="list-group-item d-flex align-items-center">
+                            <img src="https://via.placeholder.com/40" class="rounded-circle me-3" alt="Avatar">
+                            <div>
+                                <p class="fw-bold mb-0"><?= $friend->name ?></p>
+                                <small class="text-muted">Tin nhắn cuối cùng...</small>
+                            </div>                    
+                    </li>
+                </a>
+            @endforeach
         </ul>
     </div>
 
@@ -62,9 +59,8 @@
 
 <script>    
     const chatId = 1; 
-    // const userId = {{ auth()->id() }};
+    const userId = {{ auth()->id() ?? null }};
 
-    // Tham chiếu tới các thành phần HTML
     const messagesDiv = document.getElementById("messageContainer");
     const messageInput = document.getElementById("chatInput");
     const sendBtn = document.getElementById("sendMessageBtn");
@@ -72,19 +68,33 @@
     // Lắng nghe sự kiện WebSocket
     window.Echo.channel(`chat.${chatId}`)
         .listen('MessageSent', (event) => {
-            const message = event.message;
-            console.log(message);
-            const messageElement = `<div class="d-flex mb-3">
-                                        <div class="bg-light p-3 rounded w-auto">
-                                            <p class="mb-0">Chào bạn, tôi là Zalo Bot!</p>
-                                        </div>
-                                        <small class="text-muted ms-2 align-self-end">10:00 AM</small>
-                                    </div>`;
+            const message = event.message.message;
+            const date = new Date(event.message.created_at);
+            const hours = date.getHours().toString().padStart(2, '0'); 
+            const minutes = date.getMinutes().toString().padStart(2, '0'); 
+            let messageElement = null;
+
+            if(event.message.user_id == userId) {
+                messageElement = `<div class="d-flex mb-3 justify-content-end">
+                                            <small class="text-muted me-2 align-self-end">${hours}:${minutes}</small>
+                                            <div class="bg-primary text-white p-3 rounded w-auto">
+                                                <p class="mb-0">${message}</p>
+                                            </div>
+                                        </div>`;
+            }else{
+                messageElement = `<div class="d-flex mb-3">
+                                            <div class="bg-light p-3 rounded w-auto">
+                                                <p class="mb-0">${message}</p>
+                                            </div>
+                                            <small class="text-muted ms-2 align-self-end">${hours}:${minutes}</small>
+                                        </div>`;
+            }
+
             messagesDiv.innerHTML += messageElement;
         });
 
-    // Gửi tin nhắn khi bấm nút
-    sendBtn.addEventListener("click", () => {
+
+    const sendMessage = () => {
         const message = messageInput.value;
 
         if (message.trim() === "") return;
@@ -97,6 +107,15 @@
         }).catch(error => {
             console.error(error);
         });
+    };
+
+    sendBtn.addEventListener("click", sendMessage);
+    messageInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            sendMessage();
+        }
     });
+
 </script>
 @endsection
