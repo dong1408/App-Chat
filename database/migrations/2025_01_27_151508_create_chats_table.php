@@ -15,8 +15,8 @@ class CreateChatsTable extends Migration
     {
         Schema::create('chats', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->nullable(); // Tên nhóm chat (nếu là group)
-            $table->boolean('is_group')->default(false); // Xác định nhóm hay chat riêng
+            $table->string('name')->nullable(); 
+            $table->boolean('is_group')->default(false);
             $table->timestamps();
         });
     }
